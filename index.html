@@ -146,31 +146,13 @@
         <div id="step-1" class=" card card-custom p-4">
             <h4 id="titulo-persona">Registro Visitante</h4>
             <form id="form-registro">
-                <p class="fw-bold mb-2">¿Cómo te identificas?</p>
+                <h6>Paso 1</h6>
+                <p class="fw-bold mb-2">¿Cómo te identificas? (Elige una de las 16 Opciones)</p>
                 <div class="row mb-3">
                     <script>
-                        const gens = [
-                            { id: 'hombres', txt: 'Hombre' }, { id: 'mujeres', txt: 'Mujer' },
-                            { id: 'nobinarios', txt: 'No Binario' }, { id: 'prefiero_no_decirlo', txt: 'Prefiero no responder' }
-                        ];
-                        gens.forEach(g => {
-                            document.write(`
-                                <div class="col-md-3">
-                                    <label class="radio-img-container">
-                                        <input type="radio" name="genero" value="${g.id}">
-                                        <img src="iconos/${g.id}.png" class="icon-radio">
-                                        <span>${g.txt}</span>
-                                    </label>
-                                </div>
-                            `);
-                        });
-                    </script>
-                </div>
-
-                <p class="fw-bold mb-2">¿A qué grupo social pertenece?</p>
-                <div class="row g-2">
-                    <script>
                         const grupos = [
+                            { id: 'hombres', txt: 'Hombre' }, { id: 'mujeres', txt: 'Mujer' },
+                            { id: 'nobinarios', txt: 'No Binario' }, { id: 'prefiero_no_decirlo', txt: 'Prefiero no responder' },
                             { id: 'lgbttqimas', txt: 'LGBTTTQI+' },
                             { id: 'infancias_adolescentes', txt: 'Infancias/Adolescentes' },
                             { id: 'adultosmayores', txt: 'Adultos Mayores' },
@@ -197,8 +179,8 @@
                         });
                     </script>
                 </div>
-
                 <div class="text-end mt-4">
+                    <h6>Paso 2</h6>
                     <button type="button" id="btn-finalizar"
                         class="btn btn-success btn-lg px-5 ">Finalizar</button>
                 </div>
@@ -276,63 +258,19 @@
                 }
             });
         let totalP = 0, actualP = 1;
-$('#btn-finalizar').prop('disabled', true);
-        function getNumero(min, max) {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        }
-        function generarColor() {
-            const r = getNumero(0, 255)
-            const g = getNumero(0, 255)
-            const b = getNumero(0, 255)
-            $('#titulo-persona').css('color', `rgb(${r},${g},${b})`)
-
-        }
-
-        $('input[name="genero"]').change(() => {
-            if ($('input[name="genero"]').is(':checked') && $('input[name="grupo_social"]').is(':checked')) {
-              $('#btn-finalizar').prop('disabled', false);
-            }
-        })
-
+        $('#btn-finalizar').prop('disabled', true);
 
         $('input[name="grupo_social"]').change(() => {
-            if ($('input[name="genero"]').is(':checked') && $('input[name="grupo_social"]').is(':checked')) {
-                    $('#btn-finalizar').prop('disabled', false);
-               
-            }
-        })
-        $('#btndisminuir').click(() => {
-            let valor = parseInt($('#num-personas').text())
-            if (valor > 1) {
-                $('#num-personas').text(valor - 1);
-            }
-        })
-
-        $('#btnaumentar').click(() => {
-            let valor = parseInt($('#num-personas').text())
-            $('#num-personas').text(valor + 1);
+            $('#btn-finalizar').prop('disabled', false);
         })
 
  
-
-        $('#btn-siguiente').click(async function () {
-            generarColor()
-            actualP++;
-            $('#titulo-persona').text(`Registro Visitante ${actualP}`);
-            $('#form-registro')[0].reset();
-            updateUI();
-            $('#btn-siguiente').prop('disabled', true);
-            saveToFirebase();
-        });
-
         $('#btn-finalizar').click(function () {
             saveToFirebase();
             $('#step-1').hide(); $('#step-2').fadeIn();
             setTimeout(() => {
                 actualP = 1; $('#form-registro')[0].reset();
                 $('#step-2').hide(); $('#step-1').show();
-                $('#titulo-persona').text('Registro Visitante ');
-                $('#num-personas').text("1")
                 $('#btn-finalizar').prop('disabled', true);
             }, 2000);
         });
@@ -342,15 +280,13 @@ $('#btn-finalizar').prop('disabled', true);
         }
 
         async function saveToFirebase() {
-            const gen = $('input[name="genero"]:checked').val();
             const grp = $('input[name="grupo_social"]:checked').val();
             if (!grp) return;
             const ahora = new Date();
             try {
                 // Colección visitas_detalladas
                 await db.collection("visitas_detalladas").add({
-                    genero: gen,
-                    grupo_social: grp,
+                    grupo:grp,
                     anio: ahora.getFullYear().toString(),
                     mes: ahora.toLocaleString('es-ES', { month: 'long' }),
                     timestamp: Date.now()
